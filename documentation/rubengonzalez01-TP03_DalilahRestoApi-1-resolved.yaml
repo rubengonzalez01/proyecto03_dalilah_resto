@@ -1,0 +1,1041 @@
+---
+openapi: "3.0.0"
+info:
+  title: "TP03 Dalilah Restó"
+  description: "API para pedidos de comida deliciosa del restaurante. Como cliente\
+    \ podrás registrarte, ver el listado de nuestros productos y realizar una orden.\
+    \ Los administradores del restaurante tienen la posibilidad de recibir pedidos\
+    \ y actualizarlos, así como también generar nuevos productos, modificarlos y eliminarlos."
+  contact:
+    name: "Rubén González"
+    url: "https://www.linkedin.com/in/ing-ruben-j-gonzalez/"
+    email: "rubeng.ryu@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "1"
+servers:
+- url: "https://virtserver.swaggerhub.com/rubengonzalez01/TP03_RestoApi/1"
+  description: "SwaggerHub API Auto Mocking"
+- url: "https://virtserver.swaggerhub.com/rubengonzalez01/DalilahRestoAPI/1"
+  description: "SwaggerHub API Auto Mocking"
+tags:
+- name: "users"
+  description: "usuarios que operan en la app"
+- name: "products"
+  description: "platos que el restaurant ofrece a sus clientes"
+- name: "orders"
+  description: "pedidos hara cada cliente para ser preparado"
+paths:
+  /users:
+    get:
+      tags:
+      - "users"
+      summary: "Obtiene todos los usuarios "
+      description: "Para ejecutar el usuario debe estar logueado. Si quien lo ejecuta\
+        \ es usuario administrador, devuelve un listado con todos los usuarios de\
+        \ la aplicación. Si el usuario no es administrador, solo devuelve la informació\
+        n del propio usuario."
+      operationId: "getUsers"
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/UserResponse"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+    post:
+      tags:
+      - "users"
+      summary: "Creacion de un nuevo usuario"
+      description: "Permite la creacion de un nuevo usuario segun valores ingresados"
+      operationId: "addUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRequest"
+        required: true
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /users/login:
+    post:
+      tags:
+      - "users"
+      summary: "Autenticacion de un usuario"
+      description: "Permite la autenticacion y creacion de sesion de un usuario."
+      operationId: "loginUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Autenticate"
+        required: true
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "object"
+                    properties:
+                      token:
+                        type: "string"
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNpbW9uY2l0byIsImZ1bGxuYW1lIjoiU2ltb24gUGVyZXoiLCJyb2xlSWQiOjEsImlhdCI6MTYwMjk3MjcwOCwiZXhwIjoxNjAyOTc2MzA4fQ.DagxkACNi5WF0JmoLnMcL2D0AQ-jUIpzoga8qWnmwHU"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "401":
+          description: "Unautorized"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_unauth"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /users/{username}:
+    get:
+      tags:
+      - "users"
+      summary: "Obtencion de usuario por username"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite obtener\
+        \ un usuario en base a su username. Solo ejecutable por un usuario administrador."
+      operationId: "getUserByUsername"
+      parameters:
+      - name: "username"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "string"
+              example: "rubgonzalez"
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    $ref: "#/components/schemas/UserResponse"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_norights"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+    patch:
+      tags:
+      - "users"
+      summary: "Modifica el rol de un usuario"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite modificar\
+        \ el rol que posee un usuario. Solo ejecutable por usuarios administradores."
+      operationId: "setUserRole"
+      parameters:
+      - name: "username"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "string"
+              example: "rubgonzalez"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                roleId:
+                  type: "integer"
+                  example: 2
+        required: true
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_norights"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /products:
+    get:
+      tags:
+      - "products"
+      summary: "Obtiene todos los platos disponibles"
+      description: "Para ejecutar, el usuario debe estar logueado. Devuelve un listado\
+        \ con todos los platos disponibles para hacer un pedido."
+      operationId: "getProducts"
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/ProductResponse"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+    post:
+      tags:
+      - "products"
+      summary: "Agrega un nuevo producto para ofrecer"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite agregar\
+        \ un nuevo producto para la venta. Solo es ejecutable por usuarios administradores."
+      operationId: "addProduct"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_norights"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /products/{productId}:
+    put:
+      tags:
+      - "products"
+      summary: "Modifica un producto"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite modificar\
+        \ un producto para la venta. Solo es ejecutable por usuarios administradores."
+      operationId: "updateProduct"
+      parameters:
+      - name: "productId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "string"
+              example: "10"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_norights"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+    delete:
+      tags:
+      - "products"
+      summary: "Elimina un producto"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite hacer un\
+        \ borrado lógico de un producto. Solo es ejecutable por usuarios administradores."
+      operationId: "deleteProduct"
+      parameters:
+      - name: "productId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "string"
+              example: "10"
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "403":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_norights"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request no found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /orders:
+    get:
+      tags:
+      - "orders"
+      summary: "Obtiene todos los pedidos que se generaron"
+      description: "Para ejecutar, el usuario debe estar logueado. Si lo ejecuta un\
+        \ usuario administrador, devuelve todos los pedidos que generaron todos los\
+        \ usuaios. Si lo ejecuta un usuairio normal, solo trae los pedidos del mismo."
+      operationId: "getOders"
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "array"
+                    items:
+                      $ref: "#/components/schemas/OrderResponse"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+    post:
+      tags:
+      - "orders"
+      summary: "Creación de un nuevo pedido"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite la creació\
+        n de un nuevo pedido."
+      operationId: "addOrder"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequest"
+        required: true
+      responses:
+        "200":
+          description: "Success request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+  /orders/{orderId}:
+    patch:
+      tags:
+      - "orders"
+      summary: "Modifica el estado de un pedido"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite modificar\
+        \ el estado en el que se encuentra un pedido. Solo es ejecutable por un usuario\
+        \ administrador."
+      operationId: "setOrderStatus"
+      parameters:
+      - name: "orderId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "integer"
+              example: 68
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                stateId:
+                  type: "integer"
+                  example: 2
+        required: true
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
+components:
+  schemas:
+    UserRequest:
+      required:
+      - "address"
+      - "fullname"
+      - "password"
+      - "phone"
+      - "username"
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          example: "rubgonzalez"
+        fullname:
+          type: "string"
+          example: "Ruben Gonzalez"
+        address:
+          type: "string"
+          example: "Paraguay 1055"
+        phone:
+          type: "string"
+          example: "1155663226"
+        mail:
+          type: "string"
+          example: "ruben@gmail.com"
+        password:
+          type: "string"
+          example: "123456"
+    UserResponse:
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          example: "rubgonzalez"
+        fullname:
+          type: "string"
+          example: "Ruben Gonzalez"
+        address:
+          type: "string"
+          example: "Paraguay 1055"
+        phone:
+          type: "string"
+          example: "1155663226"
+        mail:
+          type: "string"
+          example: "ruben@gmail.com"
+        password:
+          type: "string"
+          example: "123456"
+        roleId:
+          type: "integer"
+          example: 1
+    Autenticate:
+      required:
+      - "password"
+      - "username"
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          example: "rubgonzalez"
+        password:
+          type: "string"
+          example: "123456"
+    ProductRequest:
+      required:
+      - "description"
+      - "name"
+      - "price"
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          example: "Hamburgueza clasica"
+        description:
+          type: "string"
+          example: "Hamburgueza a la parrilla con pan de salvado, queso, lechuga,\
+            \ tomate y rodajas de cebolla."
+        price:
+          type: "number"
+          example: 3.5E+2
+        image_url:
+          type: "string"
+          example: "https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg"
+    ProductResponse:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          example: 15
+        name:
+          type: "string"
+          example: "Hamburgueza clasica"
+        description:
+          type: "string"
+          example: "Hamburgueza a la parrilla con pan de salvado, queso, lechuga,\
+            \ tomate y rodajas de cebolla."
+        price:
+          type: "number"
+          example: 3.5E+2
+        image_url:
+          type: "string"
+          example: "https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg"
+        active:
+          type: "string"
+          example: "true"
+    OrderRequest:
+      required:
+      - "paymentId"
+      - "products"
+      - "username"
+      type: "object"
+      properties:
+        username:
+          type: "string"
+          example: "rubgonzalez"
+        paymentId:
+          type: "integer"
+          example: 2
+        products:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              productId:
+                type: "integer"
+                example: 15
+              productQuantity:
+                type: "integer"
+                example: 2
+    OrderResponse:
+      type: "object"
+      properties:
+        orderId:
+          type: "integer"
+          example: 68
+        createDate:
+          type: "string"
+          example: "2020-10-11T22:25:35.000Z"
+        username:
+          type: "string"
+          example: "rubgonzalez"
+        fullname:
+          type: "string"
+          example: "Ruben Gonzalez"
+        address:
+          type: "string"
+          example: "81 Conrad Plain"
+        totalPrice:
+          type: "number"
+          example: 350.99
+        paymentId:
+          type: "integer"
+          example: 2
+        stateId:
+          type: "integer"
+          example: 1
+        stateChangeDate:
+          type: "string"
+          example: "2020-10-11T22:25:35.000Z"
+        products:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              product_id:
+                type: "integer"
+                example: 15
+              product_quantity:
+                type: "integer"
+                example: 2
+              name:
+                type: "string"
+                example: "Hamburgueza clasica"
+              description:
+                type: "string"
+                example: "Hamburgueza a la parrilla con pan de salvado, queso, lechuga,\
+                  \ tomate y rodajas de cebolla."
+              price:
+                type: "number"
+                example: 3.5E+2
+              image_url:
+                type: "string"
+                example: "https://cocina-casera.com/wp-content/uploads/2016/11/hamburguesa-queso-receta.jpg"
+    Header_ok:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "ok"
+        message:
+          type: "string"
+          example: "Success Request."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"
+    Header_badreq:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "error"
+        message:
+          type: "string"
+          example: "Bad request."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"
+    Header_sqlexcep:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "error"
+        message:
+          type: "string"
+          example: "SQL Exception."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"
+    Header_unauth:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "error"
+        message:
+          type: "string"
+          example: "Wrong user or password."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"
+    Header_notfound:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "error"
+        message:
+          type: "string"
+          example: "Request not found."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"
+    Header_norights:
+      type: "object"
+      properties:
+        result:
+          type: "string"
+          example: "error"
+        message:
+          type: "string"
+          example: "Insufficient rights."
+        date:
+          type: "string"
+          example: "2020-10-17T21:46:25.525Z"

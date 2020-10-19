@@ -1,0 +1,28 @@
+{
+  "name": "dalilah_resto_server",
+  "version": "1.0.0",
+  "description": "Servidor dedicado a manejar las peticiones http del proyecto Dalilah Resto",
+  "main": "appServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rubengonzalez01/proyecto03_dalilah_resto.git"
+  },
+  "author": "Ruben Gonzalez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rubengonzalez01/proyecto03_dalilah_resto/issues"
+  },
+  "homepage": "https://github.com/rubengonzalez01/proyecto03_dalilah_resto#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-jwt": "^6.0.0",
+    "helmet": "^4.1.1",
+    "jsonwebtoken": "^8.5.1",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.3.5"
+  }
+}
