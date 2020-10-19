@@ -12,7 +12,7 @@
 
 3- Ejecutar el fichero **script_daliah_resto.sql**. El mismo se encuentra en el directorio **/proyecto03_dalilah_resto/documentacion**
 
-4- Una vez creada la estructura de la base de datos, levantamos la desde VSCode la raiz del proyecto, el directorio **/proyecto03_dalilah_resto**
+4- Una vez creada la estructura de la base de datos, levantamos desde VSCode la raiz del proyecto, el directorio **/proyecto03_dalilah_resto**
 
 5- Nos ubicamos en el path **/proyecto03_dalilah_resto/dev/dalilah_resto_server** y para bajar las dependencias ejecutamos el comando:
 
