@@ -8,9 +8,11 @@
 create database dalilah_resto;
 use dalilah_resto;
 
+
 -- Creo el usuario de servicio que utilizara la aplicacion y le doy permisos sobre la base de datos dalilah_resto
 create user 'dalilah_usr'@'localhost' identified by 'mysql';
 grant all privileges on dalilah_resto.* to 'dalilah_usr'@'localhost';
+commit;
 
 
 -- creacion de tabla role y carga de datos
