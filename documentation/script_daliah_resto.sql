@@ -95,6 +95,7 @@ create table user_order(
 	payment_id integer not null,
 	state_id integer not null,	
 	statechange_date timestamp not null,
+	is_active varchar(5) not null,
 	primary key(id),
 	foreign key(username) references user(username),
 	foreign key(state_id) references state(id),

@@ -57,7 +57,7 @@ class Product{
 
 
 class Order{
-    constructor(id, create_date, username, fullname, address, total_price, payment_id, state_id, statechange_date, products){
+    constructor(id, create_date, username, fullname, address, total_price, payment_id, state_id, statechange_date, is_active,products){
         this.orderId = id;
         this.createDate = create_date;
         this.username = username;
@@ -67,6 +67,7 @@ class Order{
         this.paymentId = payment_id;
         this.stateId = state_id;
         this.stateChangeDate = statechange_date;
+        this.isActive = is_active;
         this.products = products;
     }
 }

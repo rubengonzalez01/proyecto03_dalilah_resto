@@ -344,7 +344,7 @@ server.get("/orders", async function(req, res){
         } 
         order = new classModule.Order( ordersArray[i].id, ordersArray[i].create_date, ordersArray[i].username, ordersArray[i].fullname, ordersArray[i].address, 
                                    ordersArray[i].total_price, ordersArray[i].payment_id, ordersArray[i].state_id, 
-                                   ordersArray[i].statechange_date, products );
+                                   ordersArray[i].statechange_date, ordersArray[i].is_active, products );
 
         ordersResponse.push(order);
     }
@@ -381,7 +381,7 @@ server.post("/orders", orderDataValidate,async function(req, res){
             return res.status(500).json(response);
         }
     }
-    let order = new classModule.Order( null, null, username, null, null, totalPrice, paymentId, ORDER_INITIAL_STATE, null, null);
+    let order = new classModule.Order( null, null, username, null, null, totalPrice, paymentId, ORDER_INITIAL_STATE, null, true, null);
 
     // inserta un nuevo pedido en la base de datos
     let result = await mysql.insertOrder(order);
@@ -445,6 +445,31 @@ server.patch("/orders/:orderId", isAdmin, stateValidate, async function(req, res
 });
 
 
+// Permite eliminar/inhabilitar un un pedido
+server.delete("/orders/:orderId", isAdmin, async function(req, res){
+    let orderId = Number(req.params.orderId);
+
+    if(orderId){
+        // se procede a la eliminación logica del pedido
+        let result = await mysql.deleteOrder(orderId);
+        console.log("Result: ", result)
+        if(result !== SQL_ERROR){
+            if(result){
+                response.setDefaultResponse(OK, SUCCESS);
+                res.status(200).json(response);
+            } else{
+                response.setDefaultResponse(ERROR, NOTFOUND);
+                res.status(404).json(response);
+            }
+        } else{
+            response.setDefaultResponse(ERROR, SQL_ERROR);
+            res.status(500).json(response);
+        }
+    } else {
+        response.setDefaultResponse(ERROR, BAD_REQ);
+        res.status(400).json(response);
+    }
+});
 
 
 //------------------------------------------------------------------------------------------------------

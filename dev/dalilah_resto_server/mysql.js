@@ -308,9 +308,10 @@ class Mysql{
 
     async selectOrders(){
         this.result = await this.sequelize.query(
-                            'SELECT uo.id, uo.create_date, uo.username, u.fullname, u.address, uo.total_price, uo.payment_id, uo.state_id, uo.statechange_date  \
+                            `SELECT uo.id, uo.create_date, uo.username, u.fullname, u.address, uo.total_price, uo.payment_id, uo.state_id, uo.statechange_date, uo.is_active  \
                             FROM user_order uo \
-                            LEFT JOIN user u ON uo.username = u.username',
+                            LEFT JOIN user u ON uo.username = u.username \
+                            WHERE uo.is_active = 'true'`,
                             { type: this.sequelize.QueryTypes.SELECT }
                         )
                         .then( function (result){
@@ -327,10 +328,11 @@ class Mysql{
 
     async selectOrdersByUsername(username){
         this.result = await this.sequelize.query(
-                            `SELECT uo.id, uo.create_date, uo.username, u.fullname, u.address, uo.total_price, uo.payment_id, uo.state_id, uo.statechange_date  \
+                            `SELECT uo.id, uo.create_date, uo.username, u.fullname, u.address, uo.total_price, uo.payment_id, uo.state_id, uo.statechange_date, uo.is_active  \
                             FROM user_order uo \
                             LEFT JOIN user u ON uo.username = u.username \
-                            WHERE uo.username = '${username}'`,
+                            WHERE uo.username = '${username}' \
+                            AND uo.is_active = 'true'`,
                             { type: this.sequelize.QueryTypes.SELECT }
                         )
                         .then( function (result){
@@ -347,8 +349,8 @@ class Mysql{
 
     async insertOrder(order){
         this.result = await this.sequelize.query(
-                            `INSERT INTO user_order( create_date, username, total_price, payment_id, state_id, statechange_date) \
-                            VALUES( sysdate(), '${order.username}', ${order.totalPrice}, ${order.paymentId}, ${order.stateId}, sysdate())`,
+                            `INSERT INTO user_order( create_date, username, total_price, payment_id, state_id, statechange_date, is_active) \
+                            VALUES( sysdate(), '${order.username}', ${order.totalPrice}, ${order.paymentId}, ${order.stateId}, sysdate(), '${order.isActive}')`,
                             { type: this.sequelize.QueryTypes.INSERT }
                         )
                         .then( function (result){
@@ -380,6 +382,22 @@ class Mysql{
         return this.result;
     }
 
+    async deleteOrder(orderId){
+        this.result = await this.sequelize.query(
+                            `UPDATE user_order SET is_active = 'false' WHERE id = ${orderId}`,
+                            { type: this.sequelize.QueryTypes.UPDATE }
+                        )
+                        .then( function (result){
+                            console.log(result)
+                            return result[1];
+                        })
+                        .catch(err => {
+                            console.log("Error: "+ err)
+                            return SQL_ERROR;
+                        });
+                        
+        return this.result;
+    }
 
 }
 

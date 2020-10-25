@@ -704,6 +704,73 @@ paths:
                     type: "string"
                     example: "{}"
   /orders/{orderId}:
+    delete:
+      tags:
+      - "orders"
+      summary: "Elimina un pedido"
+      description: "Para ejecutar, el usuario debe estar logueado. Permite hacer un\
+        \ borrado lógico de un pedido. Solo es ejecutable por usuarios administradores."
+      operationId: "deleteOrder"
+      parameters:
+      - name: "orderId"
+        in: "path"
+        required: true
+        style: "simple"
+        explode: false
+        content:
+          application/json:
+            schema:
+              type: "integer"
+              example: 68
+      responses:
+        "200":
+          description: "Successful request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_ok"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "400":
+          description: "Bad request"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_badreq"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "404":
+          description: "Request not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_notfound"
+                  data:
+                    type: "string"
+                    example: "{}"
+        "500":
+          description: "SQL Exception"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  header:
+                    $ref: "#/components/schemas/Header_sqlexcep"
+                  data:
+                    type: "string"
+                    example: "{}"
     patch:
       tags:
       - "orders"
